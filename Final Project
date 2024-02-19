@@ -1,0 +1,149 @@
+## Now lets take a look at some ggplot2 barplots
+
+## We'll start with making a dataframe based on the tooth data
+
+```{r}
+
+df <- data.frame(dose = c("D0.5", "D1", "D2"),
+                 len = c(4.2, 10, 29.5))
+
+df
+
+```
+
+And now lets make a second dataframe
+
+```{r}
+
+df2 <- data.frame(supp=rep(c("vc", "oj"), each = 3), 
+                  dose = rep(c("D0.5", "D1", "D2"), 2),
+                  len = c(6.8, 15, 33, 4.2, 10, 29.5))
+
+df2
+
+```
+lets load up ggplot2
+
+```{r}
+
+library(ggplot2)
+```
+
+Lets set our parameters for ggplot
+```{r}
+theme_set(
+  theme_classic() + 
+    theme(legend.position = "top")
+)
+```
+
+Lets start with some basic barplots using tooth data
+
+```{r}
+
+f <- ggplot(df, aes(x = dose, y = len))
+
+f + geom_col()
+
+
+```
+
+Now lets chnage the fill, and add labels to the top 
+
+```{r}
+
+f + geom_col(fill = "purple") +
+  geom_text(aes(label = len), vjust = -0.3)
+
+```
+
+Now lets add the label inside the bars
+
+```{r} 
+
+f + geom_col(fill = "purple") + 
+  geom_text(aes(label = len), vjust = 1.6, color = "white")
+
+```
+
+Now lets change the barplot colors by group 
+
+```{r} 
+
+f + geom_col(aes(color = dose), fill = "white") + scale_color_manual(values = c("pink", "yellow", "purple"))
+
+```
+
+this is kinda hard to see, so lets change the fill
+
+```{r} 
+
+f + geom_col(aes(fill = dose)) + scale_fill_manual(values = c("pink", "yellow", "purple"))
+
+```
+
+ok how do we do this multiple groups 
+
+```{r}
+
+ggplot(df2, aes(x = dose, y = len)) + 
+  geom_col(aes(color = supp, fill =supp), position =  position_stack()) + 
+  scale_color_manual(values = c("pink", "yellow")) + 
+  scale_fill_manual(values = c("pink", "yellow"))
+
+```
+
+```{r}
+
+p <- ggplot(df2, aes(x = dose, y = len)) + 
+  geom_col(aes(color =supp, fill = supp), position = position_dodge(0.8), width = 0.7) + 
+  scale_color_manual(values = c("pink", "yellow")) + 
+  scale_fill_manual(values= c("pink", "yellow"))
+```
+
+```{r}
+p
+```
+
+Now lets add those labels to the dodged barplot
+
+```{r}
+
+p + geom_text(
+  aes(label = len, group = supp), 
+  position = position_dodge(0.8), 
+  vjust = -0.3, size = 3.5
+)
+
+```
+
+Now what if we want to add labels to our stacked barplots? For this we need dplyr
+
+```{r}
+library(dplyr)
+
+df2 <- df2 %>%
+  group_by(dose) %>%
+  arrange(dose, desc(supp)) %>%
+  mutate(lab_ypos = cumsum(len) - 0.5 * len)
+
+```
+
+```{r}
+df2
+
+```
+
+Now lets recreate our stacked graphs 
+
+```{r}
+
+ggplot(df2, aes(x= dose, y = len)) + 
+  geom_col(aes(fill = supp), width = 0.7) + 
+  geom_text(aes(y= lab_ypos, label = len, group = supp), color = "black") + 
+  scale_color_manual(values = c("pink", "yellow")) + 
+  scale_fill_manual(values = c("pink", "yellow"))
+
+```
+
+
