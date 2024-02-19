@@ -1,6 +1,10 @@
-## Now lets take a look at some ggplot2 barplots
+## GG Plots
 
-## We'll start with making a dataframe based on the tooth data
+## Barplots
+
+Now lets take a look at some ggplot2 barplots
+
+We'll start with making a dataframe based on the tooth data
 
 ```{r}
 
